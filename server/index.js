@@ -11,9 +11,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/items', itemsRouter);
-app.use('/selected', selectedRouter);
-app.use('/queue', queueRouter);
+app.use('/api/items', itemsRouter);
+app.use('/api/selected', selectedRouter);
+app.use('/api/queue', queueRouter);
 
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
