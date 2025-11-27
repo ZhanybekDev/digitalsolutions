@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 
 const itemsRouter = require('./routes/items');
+const addRouter = require('./routes/add');
 const selectedRouter = require('./routes/selected');
 const queueRouter = require('./routes/queue');
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use('/api/items', itemsRouter);
 app.use('/api/selected', selectedRouter);
 app.use('/api/queue', queueRouter);
+app.use('/api/add', addRouter);
 
 app.use(express.static(path.join(__dirname, "../client/dist")));
 

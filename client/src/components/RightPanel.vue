@@ -4,23 +4,38 @@ import draggable from 'vuedraggable';
 import {fetchSelected, enqueueAction} from '../utils/api.js';
 import {useStore} from "../store/store.js";
 import {useDebounce} from "../utils/useDebounce.js";
+import {useToast} from "../composables/useToast.js";
 
 
 const store = useStore();
-const processingSet = ref(new Set());
-const loading = ref(false);
+const toast = useToast();
 
 const filter = ref('');
+const processingSet = ref(new Set());
+const loading = ref(false);
+const noMoreData = ref(false);
+
 const debouncedFilter = useDebounce(filter, 500);
 let offset = 0;
 const limit = 20;
 
 const loadMore = async () => {
+  if (loading.value || noMoreData.value) return
   loading.value = true;
-  const items = await fetchSelected(offset, limit, debouncedFilter.value ? parseInt(debouncedFilter.value) : undefined);
-  store.rightPanelData.push(...items);
-  offset += items.length;
-  loading.value = false;
+  try {
+    const items = await fetchSelected(offset, limit, debouncedFilter.value ? parseInt(debouncedFilter.value) : undefined);
+    if (!items || items.length === 0) {
+      noMoreData.value = true;
+      return;
+    }
+    store.rightPanelData.push(...items);
+    offset += items.length;
+  }catch (error){
+    toast.error('Не удалось получить данные');
+    console.log(error)
+  }finally {
+    loading.value = false;
+  }
 };
 
 const onScroll = async (e) => {
@@ -31,23 +46,33 @@ const onScroll = async (e) => {
 };
 
 const deselectItem = async (id) => {
-  if (processingSet.value.has(id)) return;
   processingSet.value.add(id);
 
-  await enqueueAction('DESELECT', {id});
-  store.rightPanelData = store.rightPanelData.filter(i => i.id !== id);
-  store.leftPanelData.unshift({id})
-  store.leftPanelData.sort((a, b) => a.id - b.id)
-  processingSet.value.delete(id);
+  try {
+    await enqueueAction('DESELECT', {id});
+    store.rightPanelData = store.rightPanelData.filter(i => i.id !== id);
+    store.leftPanelData.unshift({id})
+    store.leftPanelData.sort((a, b) => a.id - b.id)
+  }catch (error){
+    console.log(error)
+    toast.error('Не удалось удалить')
+  }finally {
+    processingSet.value.delete(id);
+  }
 };
 
 const onReorder = async () => {
-  await enqueueAction('REORDER', {order: store.rightPanelData.map(i => i.id)});
+  try {
+    await enqueueAction('REORDER', {order: store.rightPanelData.map(i => i.id)});
+  }catch (error){
+    toast.error('Не удалось изменить место')
+  }
 };
 
 watch(debouncedFilter, () => {
   store.rightPanelData = [];
   offset = 0;
+  noMoreData.value = false;
   loadMore();
 });
 
@@ -81,6 +106,11 @@ loadMore();
     <template v-if="loading">
       <div class="flex justify-center items-center">
         <span class="w-10 h-10 mt-3 border-2 border-blue border-t-transparent rounded-full animate-spin"></span>
+      </div>
+    </template>
+    <template v-if="!loading && !store.rightPanelData.length">
+      <div class="flex justify-center items-center">
+        <span>Нет данных для отображения</span>
       </div>
     </template>
   </div>

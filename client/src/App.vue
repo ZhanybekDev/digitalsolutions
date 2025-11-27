@@ -1,6 +1,7 @@
 <script setup>
 import LeftPanel from "./components/LeftPanel.vue";
 import RightPanel from "./components/RightPanel.vue";
+import Toaster from "./components/Toaster.vue";
 </script>
 
 <template>
@@ -8,6 +9,8 @@ import RightPanel from "./components/RightPanel.vue";
     <LeftPanel />
     <RightPanel />
   </div>
+
+  <Toaster/>
 </template>
 
 <style scoped>

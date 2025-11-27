@@ -6,6 +6,11 @@ export const fetchItems = async (offset = 0, limit = 20, minId) => {
     return res.data.items;
 };
 
+export const addItem = async (id) => {
+    const res = await axios.post(`${BASE}/api/add`, { id });
+    return res.data.items;
+};
+
 export const fetchSelected = async (offset = 0, limit = 20, minId) => {
     const res = await axios.get(`${BASE}/api/selected`, { params: { offset, limit, minId } });
     return res.data.items;
