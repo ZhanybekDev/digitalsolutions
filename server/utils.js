@@ -19,7 +19,7 @@ function getLeftSlice(offset = 0, limit = 20, prefix) {
     const end = initialRange.end;
 
     const matchesPrefix = prefix
-        ? (id) => String(id).startsWith(String(prefix))
+        ? (id) => String(id).includes(String(prefix))
         : () => true;
 
     for (let id = start; id <= end; id++) {
@@ -49,7 +49,7 @@ function getLeftSlice(offset = 0, limit = 20, prefix) {
 
 function getRightSlice(offset = 0, limit = 20, prefix) {
     const matchesPrefix = prefix
-        ? (id) => String(id).startsWith(String(prefix))
+        ? (id) => String(id).includes(String(prefix))
         : () => true;
 
     const filtered = selectedOrder.filter(id => {

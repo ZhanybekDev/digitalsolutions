@@ -61,9 +61,19 @@ const deselectItem = async (id) => {
   }
 };
 
-const onReorder = async () => {
+const onReorder = async (evt) => {
   try {
-    await enqueueAction('REORDER', {order: store.rightPanelData.map(i => i.id)});
+    const movedId = store.rightPanelData[evt.newIndex].id;
+    const newPosition = evt.newIndex;
+
+    const beforeId = newPosition > 0 ? store.rightPanelData[newPosition - 1].id : null;
+    const afterId = newPosition < store.rightPanelData.length - 1 ? store.rightPanelData[newPosition + 1].id : null;
+
+    await enqueueAction('REORDER', {
+      movedId,
+      beforeId,
+      afterId
+    });
   }catch (error){
     toast.error('Не удалось изменить место')
   }

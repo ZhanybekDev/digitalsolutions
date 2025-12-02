@@ -35,7 +35,25 @@ function processActionQueue() {
                 if (index !== -1) selectedOrder.splice(index, 1);
             }
         } else if (type === 'REORDER') {
-            selectedOrder.splice(0, selectedOrder.length, ...payload.order.filter(id => selectedSet.has(id)));
+            const { movedId, beforeId, afterId } = payload;
+
+            const currentIndex = selectedOrder.indexOf(movedId);
+            if (currentIndex !== -1) {
+                selectedOrder.splice(currentIndex, 1);
+            }
+
+            let newIndex;
+            if (beforeId !== null) {
+                const beforeIndex = selectedOrder.indexOf(beforeId);
+                newIndex = beforeIndex !== -1 ? beforeIndex + 1 : selectedOrder.length;
+            } else if (afterId !== null) {
+                const afterIndex = selectedOrder.indexOf(afterId);
+                newIndex = afterIndex !== -1 ? afterIndex : 0;
+            } else {
+                newIndex = 0;
+            }
+
+            selectedOrder.splice(newIndex, 0, movedId);
         }
     }
 }
